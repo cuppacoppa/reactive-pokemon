@@ -3,6 +3,10 @@ import { Pokemon, getAll, getByName } from "./API";
 
 import "./styles.css";
 
+interface PokemonWithPower extends Pokemon {
+  power: number;  
+}
+
 const calculatePower = (pokemon: Pokemon) =>
   pokemon.hp +
   pokemon.attack +
@@ -12,7 +16,7 @@ const calculatePower = (pokemon: Pokemon) =>
   pokemon.speed;
 
 const PokemonTable: React.FunctionComponent<{
-  pokemon: Pokemon[];
+  pokemon: PokemonWithPower[];
 }> = ({ pokemon }) => {
   return (
     <table>
@@ -22,6 +26,7 @@ const PokemonTable: React.FunctionComponent<{
           <td>Name</td>
           <td>Type</td>
           <td colSpan={6}>Stats</td>
+          <td>Power</td>
         </tr>
       </thead>
       <tbody>
@@ -36,6 +41,7 @@ const PokemonTable: React.FunctionComponent<{
             <td>{p.special_attack}</td>
             <td>{p.special_defense}</td>
             <td>{p.speed}</td>
+            <td>{p.power}</td>
           </tr>
         ))}
       </tbody>
@@ -44,6 +50,17 @@ const PokemonTable: React.FunctionComponent<{
 };
 
 export default function App() {
+  const [pokemon, setPokemon] = useState<Pokemon[]>([]);
+  
+  useeffect(() => {
+    getAll().then(setPokemon)
+  }, []);
+  
+  const pokemonWithPower = pokemon.map(p => ({ 
+    ...p,
+    power: calculatePower(p),
+  }));
+  
   return (
     <div>
       <div className="top-bar">
@@ -54,7 +71,7 @@ export default function App() {
         <div>Count over threshold: </div>
       </div>
       <div className="two-column">
-        <PokemonTable pokemon={[]} />
+        <PokemonTable pokemon={pokemonWithPower} />
         <div>
           <div>Min: </div>
           <div>Max: </div>
